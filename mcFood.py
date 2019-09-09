@@ -2,16 +2,30 @@ import requests
 import json
 import random
 import time
+import argparse
 foodListOne=[]
 foodListTwo=[]
 foodListThree=[]
 foodListFour=[]
 count = 0
+argList =[]
+def printArgsHelp():
+    parser = argparse.ArgumentParser(description='example "py mcFood.py -c Mexican -s rating"')
+    parser.add_argument('-c','--cuisine',help='please select cuisine: Mexican, Italian, American, Asian...etc')
+    parser.add_argument('-s','--sort',help='Please select a sorting algorith: rating, distance, best_match')
+    parser.print_help()
+def argParseFunc(argumentList):
+    parser = argparse.ArgumentParser(description='pick random food!')
+    parser.add_argument('-c','--cuisine',help='please select cuisine: Mexican, Italian, American, Asian...etc')
+    parser.add_argument('-s','--sort',help='Please select a sorting algorith: rating, distance, best_match')
+    args = parser.parse_args()
+    argumentList.append(str(args.cuisine))
+    argumentList.append(str(args.sort))
 def searchBusinesses(foodList,typeOfFood,sortBy):
     api_key = ''
     headers = {'Authorization': 'Bearer %s' % api_key}
     url='https://api.yelp.com/v3/businesses/search'
-    params = {'term':typeOfFood,'latitude':'','longitude':'','radius':'10000','limit':'50','sort_by':sortBy}
+    params = {'term':typeOfFood,'location':'','radius':'40000','limit':'50','sort_by':sortBy}
     req=requests.get(url, params=params, headers=headers)
     #print('The status code is {}'.format(req.status_code))
     j = json.loads(req.text)
@@ -44,6 +58,9 @@ def printFullResList(foodList,count):
     print(count)
     print('\n\n')
 
-searchBusinesses(foodListOne,"Burgers","rating")
-pickRandomTwo(foodListOne)
-input("press any button to continue")
+try:
+    argParseFunc(argList)
+    searchBusinesses(foodListOne,argList[0],argList[1])
+    pickRandomTwo(foodListOne)
+except:
+    printArgsHelp()
